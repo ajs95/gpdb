@@ -4,6 +4,7 @@ import (
 	"github.com/greenplum-db/gpdb/gp/internal/enums"
 )
 
+//counterfeiter:generate . InfraConfig
 type InfraConfig interface {
 	GetRequestPort() int
 	GetPublishPort() int
@@ -52,6 +53,7 @@ func (a Authentication) GetPassword() string {
 	return a.Password
 }
 
+//counterfeiter:generate . HostConfig
 type HostConfig interface {
 	GetIp() string
 	GetHostname() string
@@ -79,6 +81,7 @@ func (h Host) GetAuth() AuthenticationConfig {
 	return h.Auth
 }
 
+//counterfeiter:generate . SegmentHostsConfig
 type SegmentHostsConfig interface {
 	GetSegmentHostsCount() int
 	GetNetwork() SegmentHostsNetworkConfig
@@ -110,6 +113,7 @@ func (s SegmentHosts) GetDomainName() string {
 	return s.DomainName
 }
 
+//counterfeiter:generate . SegmentHostsNetworkConfig
 type SegmentHostsNetworkConfig interface {
 	GetInternalCidr() string
 	GetIpRange() IpRangeConfig

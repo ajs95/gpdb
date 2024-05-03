@@ -4,11 +4,13 @@ import (
 	"github.com/greenplum-db/gpdb/gp/internal/enums"
 )
 
+//counterfeiter:generate . DatabaseConfig
 type DatabaseConfig interface {
 	GetDeploymentType() enums.DeploymentType
 	GetAdmin() UserConfig
 	GetSegmentsPerSegmentHost() int
 }
+
 type Database struct {
 	DeploymentType         enums.DeploymentType `json:"deploymentType"`
 	Admin                  *User                `json:"admin"`
@@ -41,6 +43,7 @@ func (u User) GetPassword() string {
 	return u.Password
 }
 
+//counterfeiter:generate . ArtifactConfig
 type ArtifactConfig interface {
 	GetGreenplum() string
 	GetDependencyList() []string

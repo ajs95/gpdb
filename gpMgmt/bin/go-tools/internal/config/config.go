@@ -1,9 +1,15 @@
 package config
 
 import (
+	"fmt"
+
+	"github.com/greenplum-db/gpdb/gp/internal/utils/netutils"
 	"github.com/spf13/viper"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
+//counterfeiter:generate . Config
 type Config interface {
 	SetName(string)
 	Load(string) error
@@ -11,6 +17,8 @@ type Config interface {
 	GetDatabaseConfig() DatabaseConfig
 	GetArtifactConfig() ArtifactConfig
 	GetInfraConfig() InfraConfig
+
+	GenerateSegmentIPList() error
 }
 
 func New() Config {
@@ -49,6 +57,7 @@ func (conf *appConfig) Load(configPath string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -71,4 +80,25 @@ func (conf *appConfig) setDefaults(parser *viper.Viper) *viper.Viper {
 	parser.SetDefault("Database.Admin.Name", "gpadmin")
 
 	return parser
+}
+
+func (conf *appConfig) GenerateSegmentIPList() error {
+	netUtil := netutils.NewNetworkUtil()
+	if conf.Infra == nil || conf.Infra.SegmentHosts == nil || conf.Infra.SegmentHosts.Network == nil {
+		return fmt.Errorf("segment network config not found")
+	}
+	if len(conf.Infra.SegmentHosts.Network.IpList) > 0 {
+		return nil
+	}
+	if conf.Infra.SegmentHosts.Network.IpRange == nil {
+		return fmt.Errorf("segment ip range/list not found")
+	}
+	firstIp := conf.GetInfraConfig().GetSegmentHost().GetNetwork().GetIpRange().GetFirstIp()
+	lastIp := conf.GetInfraConfig().GetSegmentHost().GetNetwork().GetIpRange().GetLastIp()
+	ipList, err := netUtil.GenerateIpv4List(firstIp, lastIp)
+	if err != nil {
+		return err
+	}
+	conf.Infra.SegmentHosts.Network.IpList = ipList
+	return nil
 }

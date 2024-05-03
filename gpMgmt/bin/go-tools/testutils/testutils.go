@@ -221,11 +221,21 @@ func getMockDBConn(t *testing.T, utility bool, errs ...error) (*dbconn.DBConn, s
 }
 
 func Assert(t *testing.T, expected any, actual any, log string) {
-	if expected != actual {
+	if !reflect.DeepEqual(expected, actual) {
 		if len(strings.TrimSpace(log)) > 0 {
 			t.Fatalf("Expected %v, got %v , %s", expected, actual, log)
 		} else {
 			t.Fatalf("Expected %v, got %v", expected, actual)
+		}
+	}
+}
+
+func AssertNotEmpty(t *testing.T, actual any, log string) {
+	if actual == nil {
+		if len(strings.TrimSpace(log)) > 0 {
+			t.Fatalf("Expected not nil, got %v, %s", actual, log)
+		} else {
+			t.Fatalf("Expected not nil, got %v", actual)
 		}
 	}
 }
